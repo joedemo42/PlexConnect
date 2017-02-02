@@ -19,6 +19,7 @@ IP_self: enable_plexconnect_autodetect, ip_plexconnect - manual override for VPN
 Intercept: Trailers-trailers.apple.com, WSJ-secure.marketwatch.com, iMovie-www.icloud.com
 HTTP: port_webserver - override when using webserver + forwarding to PlexConnect
 HTTPS: port_ssl, certfile, enable_webserver_ssl - configure SSL portion or webserver
+intercept_atv_icon: changes atv icon to plex icon
 """
 g_settings = [
     ('enable_plexgdm'  , ('True', '((True)|(False))')),
@@ -29,6 +30,7 @@ g_settings = [
     ('port_dnsserver'  , ('53', '[0-9]{1,5}')),
     ('ip_dnsmaster'    , ('8.8.8.8', '([0-9]{1,3}\.){3}[0-9]{1,3}')),
     ('prevent_atv_update'           , ('True', '((True)|(False))')),
+    ('intercept_atv_icon', ('True', '((True)|(False))')),
     \
     ('enable_plexconnect_autodetect', ('True', '((True)|(False))')),
     ('ip_plexconnect'  , ('0.0.0.0', '([0-9]{1,3}\.){3}[0-9]{1,3}')),
@@ -54,31 +56,31 @@ class CSettings():
         dprint(__name__, 1, "init class CSettings")
         self.cfg = ConfigParser.SafeConfigParser()
         self.section = 'PlexConnect'
-        
+
         # set option for fixed ordering
         self.cfg.add_section(self.section)
         for (opt, (dflt, vldt)) in g_settings:
             self.cfg.set(self.section, opt, '\0')
-        
+
         self.loadSettings()
         self.checkSection()
-    
-    
-    
+
+
+
     # load/save config
     def loadSettings(self):
         dprint(__name__, 1, "load settings")
         self.cfg.read(self.getSettingsFile())
-    
+
     def saveSettings(self):
         dprint(__name__, 1, "save settings")
         f = open(self.getSettingsFile(), 'wb')
         self.cfg.write(f)
         f.close()
-    
+
     def getSettingsFile(self):
         return sys.path[0] + sep + "Settings.cfg"
-    
+
     def checkSection(self):
         modify = False
         # check for existing section
@@ -86,7 +88,7 @@ class CSettings():
             modify = True
             self.cfg.add_section(self.section)
             dprint(__name__, 0, "add section {0}", self.section)
-        
+
         for (opt, (dflt, vldt)) in g_settings:
             setting = self.cfg.get(self.section, opt)
             if setting=='\0':
@@ -94,19 +96,19 @@ class CSettings():
                 modify = True
                 self.cfg.set(self.section, opt, dflt)
                 dprint(__name__, 0, "add setting {0}={1}", opt, dflt)
-            
+
             elif not re.search('\A'+vldt+'\Z', setting):
                 # check settings - default if unknown
                 modify = True
                 self.cfg.set(self.section, opt, dflt)
                 dprint(__name__, 0, "bad setting {0}={1} - set default {2}", opt, setting, dflt)
-        
+
         # save if changed
         if modify:
             self.saveSettings()
-    
-    
-    
+
+
+
     # access/modify PlexConnect settings
     def getSetting(self, option):
         dprint(__name__, 1, "getsetting {0}={1}", option, self.cfg.get(self.section, option))
@@ -116,11 +118,11 @@ class CSettings():
 
 if __name__=="__main__":
     Settings = CSettings()
-    
+
     option = 'enable_plexgdm'
     print Settings.getSetting(option)
-    
+
     option = 'enable_dnsserver'
     print Settings.getSetting(option)
-    
+
     del Settings
