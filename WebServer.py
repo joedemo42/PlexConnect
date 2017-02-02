@@ -152,6 +152,7 @@ class MyHandler(BaseHTTPRequestHandler):
             dprint(__name__, 2, "PlexConnect options:\n{0}", options)
             dprint(__name__, 2, "additional arguments:\n{0}", query)
 
+            # serve the plex icon
             if "a1.phobos.apple.com" in self.headers['Host']:
                  resource = self.headers['Host']+self.path
                  try:
@@ -168,7 +169,7 @@ class MyHandler(BaseHTTPRequestHandler):
                  except:
                      dprint(__name__, 0, "Failed to access resource: {0}", resource)
                      return
-                # dprint(__name__, 1, "serving "+self.headers['Host']+self.path+" with "+resource)
+                     dprint(__name__, 1, "serving "+self.headers['Host']+self.path+" with "+resource)
                  self.sendResponse(r.read(), 'image/png', False)
                  r.close()
                  return
