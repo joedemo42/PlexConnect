@@ -35,6 +35,8 @@ g_settings = [
     ('enable_plexconnect_autodetect', ('True', '((True)|(False))')),
     ('ip_plexconnect'  , ('0.0.0.0', '([0-9]{1,3}\.){3}[0-9]{1,3}')),
     ('hosttointercept' , ('trailers.apple.com', '[a-zA-Z0-9_.-]+')),
+    ('enable_ip_self_external', ('False', '((True)|(False))')),
+    ('ip_self_external'  , ('0.0.0.0', '([0-9]{1,3}\.){3}[0-9]{1,3}')),
     \
     ('port_webserver'  , ('80', '[0-9]{1,5}')),
     ('enable_webserver_ssl'         , ('True', '((True)|(False))')),

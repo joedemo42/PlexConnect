@@ -35,9 +35,17 @@ def getIP_self():
         # manual override from "settings.cfg"
         IP = cfg.getSetting('ip_plexconnect')
         dprint('PlexConnect', 0, "IP_self (from settings): "+IP)
-    
+
     return IP
 
+def getIP_self_external(IP_self):
+   cfg = param['CSettings']
+   IP = cfg.getSetting('IP_self_external')
+   if IP:
+       dprint('PlexConnect', 0, "IP_self_external: "+IP)
+       return IP
+    else:
+       return IP_self
 
 
 # initializer for Manager, proxy-ing ATVSettings to WebServer/XMLConverter
@@ -56,11 +64,11 @@ def startup():
     global pipes
     global param
     global running
-    
+
     # Settings
     cfg = Settings.CSettings()
     param['CSettings'] = cfg
-    
+
     # Logfile
     if cfg.getSetting('logpath').startswith('.'):
         # relative to current path
@@ -68,35 +76,38 @@ def startup():
     else:
         # absolute path
         logpath = cfg.getSetting('logpath')
-    
+
     param['LogFile'] = logpath + sep + 'PlexConnect.log'
     param['LogLevel'] = cfg.getSetting('loglevel')
     dinit('PlexConnect', param, True)  # init logging, new file, main process
-    
     dprint('PlexConnect', 0, "Version: {0}", __VERSION__)
     dprint('PlexConnect', 0, "Python: {0}", sys.version)
     dprint('PlexConnect', 0, "Host OS: {0}", sys.platform)
     dprint('PlexConnect', 0, "PILBackgrounds: Is PIL installed? {0}", isPILinstalled())
-    
+
     # more Settings
-    param['IP_self'] = getIP_self()
+    if param['CSettings'].getSetting('enable_IP_self_external')=='Ture'
+        param['IP_self_external'] = getIP_self_external(param['IP_self'])
+    else
+        param['IP_self'] = getIP_self()
+        
     param['HostToIntercept'] = cfg.getSetting('hosttointercept')
     param['baseURL'] = 'http://'+ param['HostToIntercept']
-    
+
     # proxy for ATVSettings
     proxy = BaseManager()
     proxy.register('ATVSettings', ATVSettings.CATVSettings)
     proxy.start(initProxy)
     param['CATVSettings'] = proxy.ATVSettings()
-    
+
     running = True
-    
+
     # init DNSServer
     if cfg.getSetting('enable_dnsserver')=='True':
         master, slave = Pipe()  # endpoint [0]-PlexConnect, [1]-DNSServer
         proc = Process(target=DNSServer.Run, args=(slave, param))
         proc.start()
-        
+
         time.sleep(0.1)
         if proc.is_alive():
             procs['DNSServer'] = proc
@@ -104,13 +115,13 @@ def startup():
         else:
             dprint('PlexConnect', 0, "DNSServer not alive. Shutting down.")
             running = False
-    
+
     # init WebServer
     if running:
         master, slave = Pipe()  # endpoint [0]-PlexConnect, [1]-WebServer
         proc = Process(target=WebServer.Run, args=(slave, param))
         proc.start()
-        
+
         time.sleep(0.1)
         if proc.is_alive():
             procs['WebServer'] = proc
@@ -118,14 +129,14 @@ def startup():
         else:
             dprint('PlexConnect', 0, "WebServer not alive. Shutting down.")
             running = False
-    
+
     # init WebServer_SSL
     if running and \
        cfg.getSetting('enable_webserver_ssl')=='True':
         master, slave = Pipe()  # endpoint [0]-PlexConnect, [1]-WebServer
         proc = Process(target=WebServer.Run_SSL, args=(slave, param))
         proc.start()
-        
+
         time.sleep(0.1)
         if proc.is_alive():
             procs['WebServer_SSL'] = proc
@@ -133,12 +144,12 @@ def startup():
         else:
             dprint('PlexConnect', 0, "WebServer_SSL not alive. Shutting down.")
             running = False
-    
+
     # not started successful - clean up
     if not running:
         cmdShutdown()
         shutdown()
-    
+
     return running
 
 def run(timeout=60):
@@ -150,14 +161,14 @@ def run(timeout=60):
             pass  # mask "IOError: [Errno 4] Interrupted function call"
         else:
             raise
-    
+
     return running
 
 def shutdown():
     for slave in procs:
         procs[slave].join()
     param['CATVSettings'].saveSettings()
-    
+
     dprint('PlexConnect', 0, "shutdown")
 
 def cmdShutdown():
@@ -179,15 +190,15 @@ def sighandler_shutdown(signum, frame):
 if __name__=="__main__":
     signal.signal(signal.SIGINT, sighandler_shutdown)
     signal.signal(signal.SIGTERM, sighandler_shutdown)
-    
+
     dprint('PlexConnect', 0, "***")
     dprint('PlexConnect', 0, "PlexConnect")
     dprint('PlexConnect', 0, "Press CTRL-C to shut down.")
     dprint('PlexConnect', 0, "***")
-    
+
     running = startup()
-    
+
     while running:
         running = run()
-    
+
     shutdown()
