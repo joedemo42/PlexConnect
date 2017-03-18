@@ -341,9 +341,9 @@ def Run(cmdPipe, param):
     dprint(__name__, 0, "***")
     dprint(__name__, 0, "DNSServer: Serving DNS on {0} port {1}.", cfg_IP_self, cfg_Port_DNSServer)
 
-    if param['CSettings'].getSetting('enable_IP_self_external')=='Ture'
+    if param['CSettings'].getSetting('enable_IP_self_external')=='Ture':
         dprint(__name__, 1, "intercept: {0} => {1}", intercept, cfg_IP_self_external)
-    else
+    else:
         dprint(__name__, 1, "intercept: {0} => {1}", intercept, cfg_IP_self)
 
     dprint(__name__, 1, "restrain: {0} => 127.0.0.1", restrain)
@@ -387,10 +387,10 @@ def Run(cmdPipe, param):
                     paket+='\xc0\x0c'                                    # pointer to domain name/original query
                     paket+='\x00\x01\x00\x01\x00\x00\x00\x3c\x00\x04'    # response type, ttl and resource data length -> 4 bytes
 
-                    if param['CSettings'].getSetting('enable_ip_self_external')=='Ture'
+                    if param['CSettings'].getSetting('enable_ip_self_external')=='Ture':
                         paket+=str.join('',map(lambda x: chr(int(x)), cfg_IP_self_external.split('.'))) # 4bytes of IP
                         dprint(__name__, 1, "-> DNS response: "+cfg_IP_self_external)
-                    else
+                    else:
                         paket+=str.join('',map(lambda x: chr(int(x)), cfg_IP_self.split('.'))) # 4bytes of IP
                         dprint(__name__, 1, "-> DNS response: "+cfg_IP_self)
 
@@ -407,9 +407,9 @@ def Run(cmdPipe, param):
                     paket+='\x00\x01\x00\x01\x00\x00\x00\x3c\x00\x04'    # response type, ttl and resource data length -> 4 bytes
                     paket+='\x7f\x00\x00\x01'  # 4bytes of IP - 127.0.0.1, loopback
 
-                    if param['CSettings'].getSetting('enable_IP_self_external')=='Ture'
+                    if param['CSettings'].getSetting('enable_IP_self_external')=='Ture':
                         dprint(__name__, 1, "-> DNS response: "+cfg_ip_self_external)
-                    else
+                    else:
                         dprint(__name__, 1, "-> DNS response: "+cfg_IP_self)
 
                 else:
