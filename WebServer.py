@@ -157,20 +157,16 @@ class MyHandler(BaseHTTPRequestHandler):
                  resource = self.headers['Host']+self.path
                  try:
                      if self.path.endswith("movie-trailers@1080.png"):
-                         resource = '/assets/icons/icon@1080.png'
+                         resource = './assets/icons/icon@1080.png'
                          dprint(__name__, 1, "serving "+self.headers['Host']+self.path+" with "+resource)
                          r = open(resource, "rb")
                      elif self.path.endswith("movie-trailers@720.png"):
-                         resource = '/assets/icons/icon@720.png'
+                         resource = './assets/icons/icon@720.png'
                          dprint(__name__, 1, "serving "+self.headers['Host']+self.path+" with "+resource)
                          r = open(resource, "rb")
                      else:
                          r = urllib.urlopen('http://'+resource)
-                 except:
-                     dprint(__name__, 0, "Failed to access resource: {0}", resource)
-                     return
-                 #dprint(__name__, 1, "serving "+self.headers['Host']+self.path+" with "+resource)
-                 self.sendResponse(r.read(), 'image/png', False)
+                         self.sendResponse(r.read(), 'image/png', False)
                  r.close()
                  return
 
