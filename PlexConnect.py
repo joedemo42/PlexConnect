@@ -21,6 +21,8 @@ import Settings, ATVSettings
 from PILBackgrounds import isPILinstalled
 from Debug import *  # dprint()
 
+
+
 def getIP_self():
     cfg = param['CSettings']
     if cfg.getSetting('enable_plexconnect_autodetect')=='True':
@@ -37,17 +39,19 @@ def getIP_self():
     return IP
 
 def getIP_self_external(IP_self):
-   cfg = param['CSettings']
-   IP = cfg.getSetting('IP_self_external')
-   if IP:
-       dprint('PlexConnect', 0, "IP_self_external: "+IP)
-       return IP
-   else:
-       return IP_self
+    cfg = param['CSettings']
+    IP = cfg.getSetting('ip_plexconnect_external')
+    if IP:
+        dprint('PlexConnect', 0, "IP_self_external: "+IP)
+        return IP
+    else:
+        return IP_self
 
 # initializer for Manager, proxy-ing ATVSettings to WebServer/XMLConverter
 def initProxy():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+
 
 procs = {}
 pipes = {}
@@ -75,17 +79,15 @@ def startup():
     param['LogFile'] = logpath + sep + 'PlexConnect.log'
     param['LogLevel'] = cfg.getSetting('loglevel')
     dinit('PlexConnect', param, True)  # init logging, new file, main process
+
     dprint('PlexConnect', 0, "Version: {0}", __VERSION__)
     dprint('PlexConnect', 0, "Python: {0}", sys.version)
     dprint('PlexConnect', 0, "Host OS: {0}", sys.platform)
     dprint('PlexConnect', 0, "PILBackgrounds: Is PIL installed? {0}", isPILinstalled())
 
     # more Settings
-    if param['CSettings'].getSetting('enable_IP_self_external')=='Ture':
-        param['IP_self_external'] = getIP_self_external(param['IP_self'])
-    else:
-        param['IP_self'] = getIP_self()
-
+    param['IP_self'] = getIP_self()
+    param['IP_self_external'] = getIP_self_external(param['IP_self'])
     param['HostToIntercept'] = cfg.getSetting('hosttointercept')
     param['baseURL'] = 'http://'+ param['HostToIntercept']
 
@@ -174,9 +176,13 @@ def cmdShutdown():
         pipes[slave].send('shutdown')
     dprint('PlexConnect', 0, "Shutting down.")
 
+
+
 def sighandler_shutdown(signum, frame):
     signal.signal(signal.SIGINT, signal.SIG_IGN)  # we heard you!
     cmdShutdown()
+
+
 
 if __name__=="__main__":
     signal.signal(signal.SIGINT, sighandler_shutdown)
