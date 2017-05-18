@@ -383,7 +383,7 @@ def Run(cmdPipe, param):
                     paket+='\xc0\x0c'                                    # pointer to domain name/original query
                     paket+='\x00\x01\x00\x01\x00\x00\x00\x3c\x00\x04'    # response type, ttl and resource data length -> 4 bytes
                     paket+=str.join('',map(lambda x: chr(int(x)), cfg_IP_self_external.split('.'))) # 4bytes of IP
-+                   dprint(__name__, 1, "-> DNS response: "+cfg_IP_self_external)
+                    dprint(__name__, 1, "-> DNS response: "+cfg_IP_self_external)
 
 
                 elif domain in restrain:
