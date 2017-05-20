@@ -10,7 +10,7 @@ import posixpath
 import traceback
 
 import os.path
-from Debug import * 
+from Debug import *
 
 try:
     from PIL import Image, ImageFilter
@@ -33,13 +33,13 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
     else:
         fileid = posixpath.basename(urlparse.urlparse(url).path)
         cachefile = urllib.quote_plus(PMS_uuid +"_"+ fileid +"_"+ resolution +"_"+ blurRadius) + ".jpg"  # quote: just to make sure...
-    
+
     # Already created?
     dprint(__name__, 1, 'Check for Cachefile.')  # Debug
     if os.path.isfile(cachepath+"/"+cachefile):
         dprint(__name__, 1, 'Cachefile  found.')  # Debug
         return "/fanartcache/"+cachefile
-    
+
     # No! Request Background from PMS
     dprint(__name__, 1, 'No Cachefile found. Generating Background.')  # Debug
     try:
@@ -59,9 +59,9 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
     except IOError as e:
         dprint(__name__, 0, 'IOError: {0} // url: {1}', str(e), url)
         return "/thumbnails/Background_blank_" + resolution + ".jpg"
-    
+
     blurRadius = int(blurRadius)
-    
+
     # Get gradient template
     dprint(__name__, 1, 'Merging Layers.')  # Debug
     if resolution == '1080':
@@ -75,31 +75,31 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
         blurRegion = (0, 342, 1280, 720)
         blurRadius = int(blurRadius / 1.5)
         layer = Image.open(stylepath + "/gradient_720.png")
-    
+
     try:
         # Set background resolution and merge layers
         bgWidth, bgHeight = background.size
         dprint(__name__,1 ,"Background size: {0}, {1}", bgWidth, bgHeight)
         dprint(__name__,1 , "aTV Height: {0}, {1}", width, height)
-        
+
         if bgHeight != height:
             background = background.resize((width, height), Image.ANTIALIAS)
             dprint(__name__,1 , "Resizing background")
-        
+
         if blurRadius != 0:
             dprint(__name__,1 , "Blurring Lower Region")
             imgBlur = background.crop(blurRegion)
             imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
             background.paste(imgBlur, blurRegion)
-            
+
         background.paste(layer, ( 0, 0), layer)
-        
+
         # Save to Cache
         background.save(cachepath+"/"+cachefile)
     except:
         dprint(__name__, 0, 'Error - Failed to generate background image.\n{0}', traceback.format_exc())
         return "/thumbnails/Background_blank_" + resolution + ".jpg"
-    
+
     dprint(__name__, 1, 'Cachefile  generated.')  # Debug
     return "/fanartcache/"+cachefile
 
@@ -113,7 +113,7 @@ def isPILinstalled():
 
 
 if __name__=="__main__":
-    url = "http://thetvdb.com/banners/fanart/original/95451-23.jpg"
+    url = "https://thetvdb.com/banners/fanart/original/95451-23.jpg"
     res = generate('uuid', url, 'authtoken', '1080')
     res = generate('uuid', url, 'authtoken', '720')
     dprint(__name__, 0, "Background: {0}", res)
