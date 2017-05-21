@@ -383,7 +383,7 @@ if __name__=="__main__":
 
     param['IP_self'] = '192.168.178.20'  # IP_self?
     param['baseURL'] = 'http://'+ param['IP_self'] +':'+ cfg.getSetting('port_webserver')
-    param['HostToIntercept'] = 'trailers.apple.com'
+    param['HostToIntercept'] = cfg.getSetting('hosttointercept')
 
     if len(sys.argv)==1:
         Run(cmdPipe[1], param)
