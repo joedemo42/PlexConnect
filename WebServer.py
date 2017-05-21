@@ -205,7 +205,7 @@ class MyHandler(BaseHTTPRequestHandler):
                     icon = g_param['CSettings'].getSetting('icon')
                     if basename.startswith(icon):
                         icon_res = basename[len(icon):]  # cut string from settings, keeps @720.png/@1080.png
-                        resource = '/assets/icons/icon'+icon_res
+                        resource = './assets/icons/icon'+icon_res
                         dprint(__name__, 1, "serving "+self.headers['Host']+self.path+" with "+resource)
                         r = open(resource, "rb")
                     else:
