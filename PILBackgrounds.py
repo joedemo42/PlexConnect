@@ -69,12 +69,14 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
         height = 1080
         blurRegion = (0, 514, 1920, 1080)
         layer = Image.open(stylepath + "/gradient_1080.png")
+        background = Image.new('RGBA', (1920,1080), (0, 0, 0, 0))
     else:
         width = 1280
         height = 720
         blurRegion = (0, 342, 1280, 720)
         blurRadius = int(blurRadius / 1.5)
         layer = Image.open(stylepath + "/gradient_720.png")
+        background = Image.new('RGBA', (1280,720), (0, 0, 0, 0))
 
     try:
         # Set background resolution and merge layers
@@ -86,14 +88,13 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
             background = background.resize((width, height), Image.ANTIALIAS)
             dprint(__name__,1 , "Resizing background")
 
-        ### Fix me soon
-        #if blurRadius != 0:
-        #    dprint(__name__,1 , "Blurring Lower Region")
-        #    imgBlur = background.crop(blurRegion)
-        #    imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
-        #    background.paste(imgBlur, blurRegion)
+        if blurRadius != 0:
+            dprint(__name__,1 , "Blurring Lower Region")
+            imgBlur = background.crop(blurRegion)
+            imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
+            background.paste(imgBlur, blurRegion)
 
-        #background.paste(layer, ( 0, 0), layer)
+        background.paste(layer, ( 0, 0), mask=layer)
 
         # Save to Cache
         background.save(cachepath+"/"+cachefile)
