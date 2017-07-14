@@ -105,8 +105,8 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
                 imgBlur = background.crop(blurRegion)
                 imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
                 background.paste(imgBlur, blurRegion)
-
-        background.paste(layer, ( 0, 0), layer)
+        ##still needs fixing
+        ##background.paste(layer, ( 0, 0), layer)
 
         # Save to Cache
         background.save(cachepath+"/"+cachefile)
