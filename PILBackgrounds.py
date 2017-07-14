@@ -18,7 +18,12 @@ try:
 except ImportError:
     __isPILinstalled = False
 
-
+try:
+    import numpy as np
+    import cv2
+    __isOpenCVinstalled = True
+except ImportError:
+    __isOpenCVinstalled = False
 
 def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
     cachepath = sys.path[0]+"/assets/fanartcache"
@@ -49,7 +54,7 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
             xargs['X-Plex-Token'] = authtoken
         request = urllib2.Request(url, None, xargs)
         response = urllib2.urlopen(request).read()
-        background = Image.open(io.BytesIO(response)).convert("RGBA")
+        background = Image.open(io.BytesIO(response))
     except urllib2.URLError as e:
         dprint(__name__, 0, 'URLError: {0} // url: {1}', e.reason, url)
         return "/thumbnails/Background_blank_" + resolution + ".jpg"
@@ -87,10 +92,19 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
             dprint(__name__,1 , "Resizing background")
 
         if blurRadius != 0:
-            dprint(__name__,1 , "Blurring Lower Region")
-            imgBlur = background.crop(blurRegion)
-            imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
-            background.paste(imgBlur, blurRegion)
+            if isOpenCVinstalled():
+                dprint(__name__,1 ,"Blurring Lower Region with OpenCV")
+                imgBlur = background.crop(blurRegion)
+                im = np.asarray(imgBlur)
+                im = cv2.blur(im, (blurRadius, blurRadius))
+                im = cv2.blur(im, (blurRadius, blurRadius))
+                imgBlur = Image.fromarray(im)
+                background.paste(imgBlur, blurRegion)
+            else:
+                dprint(__name__,1 , "Blurring Lower Region with PIL/Pillow")
+                imgBlur = background.crop(blurRegion)
+                imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
+                background.paste(imgBlur, blurRegion)
 
         background.paste(layer, ( 0, 0), layer)
 
@@ -110,10 +124,11 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
 def isPILinstalled():
     return __isPILinstalled
 
-
+def isOpenCVinstalled():
+    return __isOpenCVinstalled
 
 if __name__=="__main__":
     url = "https://thetvdb.com/banners/fanart/original/95451-23.jpg"
-    res = generate('uuid', url, 'authtoken', '1080')
-    res = generate('uuid', url, 'authtoken', '720')
+    res = generate('uuid', url, 'authtoken', '1080', '45')
+    res = generate('uuid', url, 'authtoken', '720', '45')
     dprint(__name__, 0, "Background: {0}", res)
