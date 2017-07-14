@@ -18,12 +18,7 @@ try:
 except ImportError:
     __isPILinstalled = False
 
-try:
-    import numpy as np
-    import cv2
-    __isOpenCVinstalled = True
-except ImportError:
-    __isOpenCVinstalled = False
+
 
 def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
     cachepath = sys.path[0]+"/assets/fanartcache"
@@ -91,14 +86,13 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
             background = background.resize((width, height), Image.ANTIALIAS)
             dprint(__name__,1 , "Resizing background")
 
-        ## still needs fixing removed just the blur till i can make it work
-        ##if blurRadius != 0:
-        #    dprint(__name__,1 , "Blurring Lower Region with PIL/Pillow")
-        #    imgBlur = background.crop(blurRegion)
-        #    imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
-        #    background.paste(imgBlur, blurRegion)
+        if blurRadius != 0:
+            dprint(__name__,1 , "Blurring Lower Region")
+            imgBlur = background.crop(blurRegion)
+            imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
+            background.paste(imgBlur, blurRegion)
 
-        #background.paste(layer, ( 0, 0), layer)
+        background.paste(layer, ( 0, 0), layer)
 
         # Save to Cache
         background.save(cachepath+"/"+cachefile)
@@ -116,11 +110,10 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
 def isPILinstalled():
     return __isPILinstalled
 
-def isOpenCVinstalled():
-    return __isOpenCVinstalled
+
 
 if __name__=="__main__":
     url = "https://thetvdb.com/banners/fanart/original/95451-23.jpg"
-    res = generate('uuid', url, 'authtoken', '1080', '45')
-    res = generate('uuid', url, 'authtoken', '720', '45')
+    res = generate('uuid', url, 'authtoken', '1080')
+    res = generate('uuid', url, 'authtoken', '720')
     dprint(__name__, 0, "Background: {0}", res)
