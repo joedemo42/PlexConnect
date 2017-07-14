@@ -49,7 +49,7 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
             xargs['X-Plex-Token'] = authtoken
         request = urllib2.Request(url, None, xargs)
         response = urllib2.urlopen(request).read()
-        background = Image.open(io.BytesIO(response))
+        background = Image.open(io.BytesIO(response)).convert("RGBA")
     except urllib2.URLError as e:
         dprint(__name__, 0, 'URLError: {0} // url: {1}', e.reason, url)
         return "/thumbnails/Background_blank_" + resolution + ".jpg"
@@ -69,14 +69,12 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
         height = 1080
         blurRegion = (0, 514, 1920, 1080)
         layer = Image.open(stylepath + "/gradient_1080.png")
-        background = Image.new('RGBA', (1920,1080), (0, 0, 0, 0))
     else:
         width = 1280
         height = 720
         blurRegion = (0, 342, 1280, 720)
         blurRadius = int(blurRadius / 1.5)
         layer = Image.open(stylepath + "/gradient_720.png")
-        background = Image.new('RGBA', (1280,720), (0, 0, 0, 0))
 
     try:
         # Set background resolution and merge layers
@@ -94,7 +92,7 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
             imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
             background.paste(imgBlur, blurRegion)
 
-        background.paste(layer, ( 0, 0), mask=layer)
+        background.paste(layer, ( 0, 0), layer)
 
         # Save to Cache
         background.save(cachepath+"/"+cachefile)
