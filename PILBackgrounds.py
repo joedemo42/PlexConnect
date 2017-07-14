@@ -91,22 +91,14 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
             background = background.resize((width, height), Image.ANTIALIAS)
             dprint(__name__,1 , "Resizing background")
 
-        if blurRadius != 0:
-            if isOpenCVinstalled():
-                dprint(__name__,1 ,"Blurring Lower Region with OpenCV")
-                imgBlur = background.crop(blurRegion)
-                im = np.asarray(imgBlur)
-                im = cv2.blur(im, (blurRadius, blurRadius))
-                im = cv2.blur(im, (blurRadius, blurRadius))
-                imgBlur = Image.fromarray(im)
-                background.paste(imgBlur, blurRegion)
-            else:
-                dprint(__name__,1 , "Blurring Lower Region with PIL/Pillow")
-                imgBlur = background.crop(blurRegion)
-                imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
-                background.paste(imgBlur, blurRegion)
-        ##still needs fixing
-        ##background.paste(layer, ( 0, 0), layer)
+        ## still needs fixing removed just the blur till i can make it work
+        ##if blurRadius != 0:
+        #    dprint(__name__,1 , "Blurring Lower Region with PIL/Pillow")
+        #    imgBlur = background.crop(blurRegion)
+        #    imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
+        #    background.paste(imgBlur, blurRegion)
+
+        background.paste(layer, ( 0, 0), layer)
 
         # Save to Cache
         background.save(cachepath+"/"+cachefile)
