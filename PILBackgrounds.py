@@ -86,14 +86,13 @@ def generate(PMS_uuid, url, authtoken, resolution, blurRadius):
             background = background.resize((width, height), Image.ANTIALIAS)
             dprint(__name__,1 , "Resizing background")
 
-        ### Fix me soon
-        #if blurRadius != 0:
-        #    dprint(__name__,1 , "Blurring Lower Region")
-        #    imgBlur = background.crop(blurRegion)
-        #    imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
-        #    background.paste(imgBlur, blurRegion)
+        if blurRadius != 0:
+            dprint(__name__,1 , "Blurring Lower Region")
+            imgBlur = background.crop(blurRegion)
+            imgBlur = imgBlur.filter(ImageFilter.GaussianBlur(blurRadius))
+            background.paste(imgBlur, blurRegion)
 
-        #background.paste(layer, ( 0, 0), layer)
+        background.paste(layer, ( 0, 0), layer)
 
         # Save to Cache
         background.save(cachepath+"/"+cachefile)
